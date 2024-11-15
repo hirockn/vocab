@@ -162,16 +162,6 @@ document.getElementById('clearAllButton').addEventListener('click', function () 
     localStorage.removeItem('vocabList'); // ローカルストレージから削除
     alert('すべて削除しました！');
 });
-
-// デモ用: テストデータを追加（後で削除する場合は以下を省略）
-function addTestData() {
-    const testVocab = ['りんご', 'みかん', 'ぶどう'];
-    localStorage.setItem('vocabList', JSON.stringify(testVocab));
-    loadVocabList();
-}
-
-// 初期表示時にリストをロード
-loadVocabList();
   </script>
   <a href="vocab_cards.html">語彙カードページ</a>
 </body>
