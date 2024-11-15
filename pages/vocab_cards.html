@@ -20,11 +20,12 @@
       position: absolute;
       display: flex;
       align-items: center;
-      touch-action: none; /* タッチ操作を有効化 */
+      touch-action: none;
     }
     .card {
-      width: 150px;
-      height: 50px;
+      min-width: 150px;
+      max-width: 250px;
+      padding: 10px;
       border-radius: 10px;
       display: flex;
       justify-content: center;
@@ -35,7 +36,11 @@
       font-weight: bold;
       color: #333;
       user-select: none;
+      text-align: center;
+      word-wrap: break-word;
+      line-height: 1.4;
       background-color: #fdffb6;
+      transition: height 0.2s ease;
     }
     .color-toggle {
       width: 20px;
@@ -74,6 +79,10 @@
     .color-circle:hover {
       border: 2px solid #333;
     }
+    .card[contenteditable="true"] {
+      outline: 2px solid #00f;
+      cursor: text;
+    }
   </style>
 </head>
 <body>
@@ -101,6 +110,22 @@
       card.classList.add('card');
       card.textContent = vocab.text;
       card.style.backgroundColor = vocab.color;
+
+      // ダブルクリック/ダブルタップで編集モード
+      let isEditing = false;
+      card.addEventListener('dblclick', () => {
+        if (isEditing) return; // すでに編集中なら何もしない
+        card.setAttribute('contenteditable', 'true');
+        card.focus();
+        isEditing = true;
+      });
+
+      card.addEventListener('blur', () => {
+        card.removeAttribute('contenteditable');
+        vocab.text = card.textContent;
+        localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
+        isEditing = false;
+      });
 
       // タッチ操作用イベント
       cardContainer.addEventListener('touchstart', (e) => {
@@ -140,7 +165,7 @@
         circle.style.backgroundColor = color;
         circle.addEventListener('click', () => {
           card.style.backgroundColor = color;
-          vocabularies[index].color = color;
+          vocab.color = color;
           localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
           colorOptions.style.display = 'none';
         });
