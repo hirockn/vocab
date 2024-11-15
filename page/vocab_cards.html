@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>語彙カード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'メイリオ', sans-serif;
+    }
+    #workspace {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      background-color: #f9f9f9;
+    }
+    .card-container {
+      position: absolute;
+      display: flex;
+      align-items: center;
+    }
+    .card {
+      width: 150px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: grab;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      user-select: none;
+    }
+    .color-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-left: 10px;
+      background-color: #ccc;
+      position: relative;
+      display: none; /* 初期状態は非表示 */
+    }
+    .card-container:hover .color-toggle {
+      display: block; /* ホバリング中のみ表示 */
+    }
+    .color-options {
+      display: none;
+      position: absolute;
+      top: 50px; /* 丸ボタンの真下に配置 */
+      left: 150px;
+      flex-direction: column;
+      gap: 5px;
+      background-color: #fff;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    .color-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .color-circle:hover {
+      border: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="workspace"></div>
+
+  <script>
+    const vocabularies = JSON.parse(localStorage.getItem('vocabularies')) || [];
+
+    const workspace = document.getElementById('workspace');
+
+    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
+
+    let offsetX, offsetY;
+
+    vocabularies.forEach((vocab, index) => {
+      // カードコンテナ（カード＋ボタン＋オプション）
+      const cardContainer = document.createElement('div');
+      cardContainer.classList.add('card-container');
+      cardContainer.style.left = `${50 + index * 20}px`;
+      cardContainer.style.top = `${50 + index * 20}px`;
+
+      // カード本体
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.textContent = vocab.text;
+      card.style.backgroundColor = vocab.color;
+      card.draggable = true;
+
+      // ドラッグ＆ドロップのイベント
+      card.addEventListener('dragstart', (e) => {
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+      });
+
+      card.addEventListener('dragend', (e) => {
+        cardContainer.style.left = `${e.pageX - offsetX}px`;
+        cardContainer.style.top = `${e.pageY - offsetY}px`;
+      });
+
+      // 色変更用トグルボタン
+      const colorToggle = document.createElement('div');
+      colorToggle.classList.add('color-toggle');
+
+      // 色選択オプション
+      const colorOptions = document.createElement('div');
+      colorOptions.classList.add('color-options');
+
+      colors.forEach((color) => {
+        const circle = document.createElement('div');
+        circle.classList.add('color-circle');
+        circle.style.backgroundColor = color;
+        circle.addEventListener('click', () => {
+          card.style.backgroundColor = color;
+          vocabularies[index].color = color;
+          localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
+          colorOptions.style.display = 'none';
+        });
+        colorOptions.appendChild(circle);
+      });
+
+      // トグルボタンをクリックしてオプションを表示/非表示
+      colorToggle.addEventListener('click', () => {
+        colorOptions.style.display = colorOptions.style.display === 'flex' ? 'none' : 'flex';
+      });
+
+      // カードコンテナからカーソルが外れたときに色パレットを閉じる
+      cardContainer.addEventListener('mouseleave', () => {
+        colorOptions.style.display = 'none';
+      });
+
+      cardContainer.appendChild(card);
+      cardContainer.appendChild(colorToggle);
+      cardContainer.appendChild(colorOptions);
+
+      workspace.appendChild(cardContainer);
+    });
+  </script>
+</body>
+</html>
 
