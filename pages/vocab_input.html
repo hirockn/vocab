@@ -81,6 +81,10 @@
       <!-- 色選択パレット -->
     </div>
     <button type="submit">追加</button>
+    <button id="clearAllButton">すべて削除</button>
+<ul id="vocabList">
+  <!-- 語彙リストがここに追加される -->
+</ul>
   </form>
   <ul id="vocabList"></ul>
 
@@ -139,6 +143,12 @@
     });
 
     updateList();
+    // 一括削除ボタンの処理
+document.getElementById('clearAllButton').addEventListener('click', function () {
+    const vocabList = document.getElementById('vocabList');
+    vocabList.innerHTML = ''; // リストを空にする
+    alert('すべて削除しました！'); // 確認メッセージ
+});
   </script>
   <a href="vocab_cards.html">語彙カードページ</a>
 </body>
