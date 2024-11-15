@@ -141,7 +141,7 @@
         updateList();
       }
     });
-   // 初期化: ローカルストレージからデータを取得して表示
+      // 初期化: ローカルストレージからデータを取得して表示
 function loadVocabList() {
     const savedVocab = JSON.parse(localStorage.getItem('vocabList')) || [];
     const vocabList = document.getElementById('vocabList');
@@ -170,9 +170,6 @@ function addTestData() {
 
 // 初期表示時にリストをロード
 loadVocabList();
-
-    updateList();
-
   </script>
   <a href="vocab_cards.html">語彙カードページ</a>
 </body>
