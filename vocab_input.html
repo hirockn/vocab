@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>語彙入力</title>
+  <style>
+    body {
+      font-family: 'メイリオ', sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    #vocabInput {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    .color-picker {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .selected {
+      border: 2px solid #333;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #5a4db0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background-color: #f4f4f4;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <h1>語彙を入力してください</h1>
+  <form id="vocabForm">
+    <input type="text" id="vocabInput" placeholder="語彙を入力" required />
+    <div id="colorOptions">
+      <!-- 色選択パレット -->
+    </div>
+    <button type="submit">追加</button>
+  </form>
+  <ul id="vocabList"></ul>
+
+  <script>
+    const form = document.getElementById('vocabForm');
+    const input = document.getElementById('vocabInput');
+    const list = document.getElementById('vocabList');
+    const colorOptions = document.getElementById('colorOptions');
+
+    let vocabularies = JSON.parse(localStorage.getItem('vocabularies')) || [];
+    let selectedColor = '#ffffff'; // デフォルトカラー
+
+    // 色のパレットを生成
+    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
+    colors.forEach((color) => {
+      const div = document.createElement('div');
+      div.classList.add('color-picker');
+      div.style.backgroundColor = color;
+      div.addEventListener('click', () => {
+        selectedColor = color;
+        document.querySelectorAll('.color-picker').forEach(picker => picker.classList.remove('selected'));
+        div.classList.add('selected');
+      });
+      colorOptions.appendChild(div);
+    });
+
+    const updateList = () => {
+      list.innerHTML = '';
+      vocabularies.forEach((vocab, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${vocab.text}`;
+        li.style.backgroundColor = vocab.color;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '削除';
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.addEventListener('click', () => {
+          vocabularies.splice(index, 1);
+          localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
+          updateList();
+        });
+
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+      });
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (input.value.trim()) {
+        vocabularies.push({ text: input.value.trim(), color: selectedColor });
+        localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
+        input.value = '';
+        updateList();
+      }
+    });
+
+    updateList();
+  </script>
+</body>
+</html>
