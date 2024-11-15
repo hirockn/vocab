@@ -44,14 +44,14 @@
       position: relative;
       display: none; /* 初期状態は非表示 */
     }
-    .card-container:hover .color-toggle {
-      display: block; /* ホバリング中のみ表示 */
+    .card-container.active .color-toggle {
+      display: block; /* タッチ時やホバリング時に表示 */
     }
     .color-options {
       display: none;
       position: absolute;
-      top: 50px; /* 丸ボタンの真下に配置 */
-      left: 150px;
+      top: 30px; /* 丸ボタンの真下に配置 */
+      left: 0;
       flex-direction: column;
       gap: 5px;
       background-color: #fff;
@@ -131,14 +131,19 @@
         colorOptions.appendChild(circle);
       });
 
+      // タッチやクリックで丸ボタン表示
+      cardContainer.addEventListener('touchstart', () => {
+        cardContainer.classList.add('active');
+      });
+
+      cardContainer.addEventListener('mouseleave', () => {
+        cardContainer.classList.remove('active');
+        colorOptions.style.display = 'none';
+      });
+
       // トグルボタンをクリックしてオプションを表示/非表示
       colorToggle.addEventListener('click', () => {
         colorOptions.style.display = colorOptions.style.display === 'flex' ? 'none' : 'flex';
-      });
-
-      // カードコンテナからカーソルが外れたときに色パレットを閉じる
-      cardContainer.addEventListener('mouseleave', () => {
-        colorOptions.style.display = 'none';
       });
 
       cardContainer.appendChild(card);
@@ -146,6 +151,18 @@
       cardContainer.appendChild(colorOptions);
 
       workspace.appendChild(cardContainer);
+    });
+
+    // タッチ操作時、他のカードを非アクティブに
+    workspace.addEventListener('touchstart', (e) => {
+      const containers = document.querySelectorAll('.card-container');
+      containers.forEach(container => {
+        if (!container.contains(e.target)) {
+          container.classList.remove('active');
+          const colorOptions = container.querySelector('.color-options');
+          if (colorOptions) colorOptions.style.display = 'none';
+        }
+      });
     });
   </script>
 </body>
