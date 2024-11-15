@@ -14,11 +14,13 @@
       height: 100vh;
       position: relative;
       background-color: #f9f9f9;
+      overflow: hidden;
     }
     .card-container {
       position: absolute;
       display: flex;
       align-items: center;
+      touch-action: none; /* タッチ操作を有効化 */
     }
     .card {
       width: 150px;
@@ -33,6 +35,7 @@
       font-weight: bold;
       color: #333;
       user-select: none;
+      background-color: #fdffb6;
     }
     .color-toggle {
       width: 20px;
@@ -45,7 +48,7 @@
       display: none; /* 初期状態は非表示 */
     }
     .card-container.active .color-toggle {
-      display: block; /* タッチ時やホバリング時に表示 */
+      display: block; /* アクティブ時に表示 */
     }
     .color-options {
       display: none;
@@ -83,6 +86,7 @@
 
     const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
 
+    let dragging = null; // 現在ドラッグ中の要素
     let offsetX, offsetY;
 
     vocabularies.forEach((vocab, index) => {
@@ -97,17 +101,29 @@
       card.classList.add('card');
       card.textContent = vocab.text;
       card.style.backgroundColor = vocab.color;
-      card.draggable = true;
 
-      // ドラッグ＆ドロップのイベント
-      card.addEventListener('dragstart', (e) => {
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
+      // タッチ操作用イベント
+      cardContainer.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        dragging = cardContainer;
+        offsetX = touch.clientX - cardContainer.offsetLeft;
+        offsetY = touch.clientY - cardContainer.offsetTop;
+        cardContainer.style.cursor = 'grabbing';
       });
 
-      card.addEventListener('dragend', (e) => {
-        cardContainer.style.left = `${e.pageX - offsetX}px`;
-        cardContainer.style.top = `${e.pageY - offsetY}px`;
+      cardContainer.addEventListener('touchmove', (e) => {
+        if (dragging) {
+          const touch = e.touches[0];
+          const x = touch.clientX - offsetX;
+          const y = touch.clientY - offsetY;
+          dragging.style.left = `${x}px`;
+          dragging.style.top = `${y}px`;
+        }
+      });
+
+      cardContainer.addEventListener('touchend', () => {
+        dragging = null;
+        cardContainer.style.cursor = 'grab';
       });
 
       // 色変更用トグルボタン
