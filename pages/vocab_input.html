@@ -142,11 +142,12 @@
       }
     });
     // 一括削除ボタンの処理
-document.getElementById('clearAllButton').addEventListener('click', function () {
+    document.getElementById('clearAllButton').addEventListener('click', function () {
     const vocabList = document.getElementById('vocabList');
     vocabList.innerHTML = ''; // リストを空にする
     alert('すべて削除しました！'); // 確認メッセージ
-});
+    updateList();
+    });
     updateList();
 
   </script>
