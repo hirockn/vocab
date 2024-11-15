@@ -142,16 +142,6 @@
       }
     });
   </script>
-  <script>
-
-  // 一括削除ボタンの処理
-  document.getElementById('clearAllButton').addEventListener('click', function () {
-    const vocabList = document.getElementById('vocabList');
-    vocabList.innerHTML = ''; // 表示上のリストを空にする
-    localStorage.removeItem('vocabList'); // ローカルストレージから削除
-    alert('すべて削除しました！');
-  });
-  </script>
   <a href="vocab_cards.html">語彙カードページ</a>
 </body>
 </html>
