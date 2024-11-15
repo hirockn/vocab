@@ -143,25 +143,14 @@
     });
   </script>
   <script>
-      // 初期化: ローカルストレージからデータを取得して表示
-function loadVocabList() {
-    const savedVocab = JSON.parse(localStorage.getItem('vocabList')) || [];
-    const vocabList = document.getElementById('vocabList');
-    vocabList.innerHTML = '';
-    savedVocab.forEach((word) => {
-        const li = document.createElement('li');
-        li.textContent = word;
-        vocabList.appendChild(li);
-    });
-}
 
-// 一括削除ボタンの処理
-document.getElementById('clearAllButton').addEventListener('click', function () {
+  // 一括削除ボタンの処理
+  document.getElementById('clearAllButton').addEventListener('click', function () {
     const vocabList = document.getElementById('vocabList');
     vocabList.innerHTML = ''; // 表示上のリストを空にする
     localStorage.removeItem('vocabList'); // ローカルストレージから削除
     alert('すべて削除しました！');
-});
+  });
   </script>
   <a href="vocab_cards.html">語彙カードページ</a>
 </body>
