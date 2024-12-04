@@ -79,11 +79,26 @@
       outline: 2px solid #00f;
       cursor: text;
     }
+    .nav-links {
+      margin: 10px;
+      font-size: 18px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #007bff;
+      margin-right: 15px;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <div class="nav-links">
+    <a href="index.html">ホーム</a>
+    <a href="input.html">語彙入力ページ</a>
+  </div>
   <div id="workspace"></div>
-  <a href="vocab_input.html">語彙入力ページ</a>
 
   <script>
     const vocabularies = JSON.parse(localStorage.getItem('vocabularies')) || [];
