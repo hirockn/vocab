@@ -1,196 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>語彙カード</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'メイリオ', sans-serif;
+<script>
+  const workspace = document.getElementById('workspace');
+
+  let dragging = null;
+  let offsetX, offsetY;
+
+  function startDrag(e, element) {
+    dragging = element;
+    const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+    const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+    offsetX = clientX - element.offsetLeft;
+    offsetY = clientY - element.offsetTop;
+    element.style.cursor = 'grabbing';
+  }
+
+  function moveDrag(e) {
+    if (dragging) {
+      const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+      const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+      dragging.style.left = `${clientX - offsetX}px`;
+      dragging.style.top = `${clientY - offsetY}px`;
     }
-    #workspace {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-      background-color: #f9f9f9;
-      overflow: hidden;
+  }
+
+  function endDrag() {
+    if (dragging) {
+      dragging.style.cursor = 'grab';
+      dragging = null;
     }
-    .card-container {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      touch-action: none;
-    }
-    .card {
-      min-width: 150px;
-      max-width: 250px;
-      padding: 10px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: grab;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      font-size: 16px;
-      font-weight: bold;
-      color: #333;
-      user-select: none;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.4;
-      background-color: #fdffb6;
-      transition: height 0.2s ease;
-    }
-    .color-toggle {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      margin-left: 10px;
-      background-color: #ccc;
-      position: relative;
-    }
-    .color-options {
-      display: none;
-      position: absolute;
-      top: 30px;
-      left: 0;
-      flex-direction: column;
-      gap: 5px;
-      background-color: #fff;
-      padding: 5px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      z-index: 10;
-    }
-    .color-circle {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .color-circle:hover {
-      border: 2px solid #333;
-    }
-    .card[contenteditable="true"] {
-      outline: 2px solid #00f;
-      cursor: text;
-    }
-  </style>
-</head>
-<body>
-  <div id="workspace"></div>
-  <a href="vocab_input.html">語彙入力ページ</a>
+  }
 
-  <script>
-    const vocabularies = JSON.parse(localStorage.getItem('vocabularies')) || [];
+  // カード生成ループ内
+  cardContainer.addEventListener('mousedown', (e) => startDrag(e, cardContainer));
+  cardContainer.addEventListener('touchstart', (e) => startDrag(e, cardContainer));
 
-    const workspace = document.getElementById('workspace');
+  workspace.addEventListener('mousemove', moveDrag);
+  workspace.addEventListener('touchmove', moveDrag);
 
-    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
-
-    let lastTap = 0; // ダブルタップ検知用
-
-    vocabularies.forEach((vocab, index) => {
-      // カードコンテナ（カード＋ボタン＋オプション）
-      const cardContainer = document.createElement('div');
-      cardContainer.classList.add('card-container');
-      cardContainer.style.left = `${50 + index * 20}px`;
-      cardContainer.style.top = `${50 + index * 20}px`;
-
-      // カード本体
-      const card = document.createElement('div');
-      card.classList.add('card');
-      card.textContent = vocab.text;
-      card.style.backgroundColor = vocab.color;
-
-      // ダブルタップで編集モード（スマホ対応）
-      card.addEventListener('click', (e) => {
-        const currentTime = new Date().getTime();
-        const tapInterval = currentTime - lastTap;
-
-        if (tapInterval < 300 && tapInterval > 0) {
-          // ダブルタップとみなす
-          e.preventDefault();
-          enterEditMode(card, vocab);
-        }
-        lastTap = currentTime;
-      });
-
-      // 編集モードに切り替える関数
-      function enterEditMode(card, vocab) {
-        card.setAttribute('contenteditable', 'true');
-        card.focus();
-
-        // 編集終了時に保存
-        card.addEventListener('blur', () => {
-          card.removeAttribute('contenteditable');
-          vocab.text = card.textContent;
-          localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
-        }, { once: true });
-      }
-
-      // ドラッグ用イベント（タッチ操作対応）
-      let offsetX, offsetY, dragging = null;
-
-      cardContainer.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        dragging = cardContainer;
-        offsetX = touch.clientX - cardContainer.offsetLeft;
-        offsetY = touch.clientY - cardContainer.offsetTop;
-        cardContainer.style.cursor = 'grabbing';
-      });
-
-      cardContainer.addEventListener('touchmove', (e) => {
-        if (dragging) {
-          const touch = e.touches[0];
-          const x = touch.clientX - offsetX;
-          const y = touch.clientY - offsetY;
-          dragging.style.left = `${x}px`;
-          dragging.style.top = `${y}px`;
-        }
-      });
-
-      cardContainer.addEventListener('touchend', () => {
-        dragging = null;
-        cardContainer.style.cursor = 'grab';
-      });
-
-      // 色変更用トグルボタン
-      const colorToggle = document.createElement('div');
-      colorToggle.classList.add('color-toggle');
-
-      // 色選択オプション
-      const colorOptions = document.createElement('div');
-      colorOptions.classList.add('color-options');
-
-      colors.forEach((color) => {
-        const circle = document.createElement('div');
-        circle.classList.add('color-circle');
-        circle.style.backgroundColor = color;
-        circle.addEventListener('click', () => {
-          card.style.backgroundColor = color;
-          vocab.color = color;
-          localStorage.setItem('vocabularies', JSON.stringify(vocabularies));
-          colorOptions.style.display = 'none';
-        });
-        colorOptions.appendChild(circle);
-      });
-
-      // トグルボタンをクリックしてオプションを表示/非表示
-      colorToggle.addEventListener('click', () => {
-        colorOptions.style.display = colorOptions.style.display === 'flex' ? 'none' : 'flex';
-      });
-
-      cardContainer.appendChild(card);
-      cardContainer.appendChild(colorToggle);
-      cardContainer.appendChild(colorOptions);
-
-      workspace.appendChild(cardContainer);
-    });
-  </script>
-</body>
-</html>
+  workspace.addEventListener('mouseup', endDrag);
+  workspace.addEventListener('touchend', endDrag);
+</script>
